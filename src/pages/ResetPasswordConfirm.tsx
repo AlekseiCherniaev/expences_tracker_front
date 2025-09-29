@@ -9,7 +9,7 @@ export default function ResetPasswordConfirm() {
   const navigate = useNavigate();
 
   const query = new URLSearchParams(useLocation().search);
-  const token = query.get('token');
+  const token = query.get('password_token');
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
