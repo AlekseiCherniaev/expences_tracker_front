@@ -9,7 +9,7 @@ export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const emailToken = searchParams.get('token');
+    const emailToken = searchParams.get('email_token');
     
     if (!emailToken) {
       setStatus('error');
