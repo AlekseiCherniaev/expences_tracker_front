@@ -4,12 +4,12 @@ const API_URL = '/api';
 
 let accessToken: string | null = null;
 
-const api: AxiosInstance = axios.create({
+export const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
 });
 
-function setAccessToken(token: string | null) {
+export function setAccessToken(token: string | null) {
   accessToken = token;
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -22,8 +22,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+    if (error.response?.status === 401 && !originalRequest?._retry) {
+      (originalRequest as any)._retry = true;
       try {
         await refreshToken();
         return api(originalRequest);
@@ -68,7 +68,11 @@ export async function logout() {
   const csrfToken = getCookie('csrf_token');
   if (!csrfToken) throw new Error('Missing CSRF token');
 
-  await api.post('/auth/logout', {}, { headers: { 'X-CSRF-Token': csrfToken } });
+  await api.post(
+    '/auth/logout',
+    {},
+    { headers: { 'X-CSRF-Token': csrfToken } }
+  );
   setAccessToken(null);
 }
 
@@ -76,5 +80,3 @@ function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
   return match ? decodeURIComponent(match[2]) : null;
 }
-
-export { api, setAccessToken };

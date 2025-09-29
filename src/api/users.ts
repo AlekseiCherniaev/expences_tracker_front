@@ -31,10 +31,7 @@ export async function uploadAvatar(
 
   const res = await api.put<{ upload_url: string; public_url: string }>(
     '/users/upload-avatar',
-    formData,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
+    formData
   );
 
   return res.data;

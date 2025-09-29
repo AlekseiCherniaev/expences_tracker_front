@@ -5,11 +5,17 @@ import {
   useEffect,
   ReactNode,
 } from 'react';
-import { login, logout, register, setAccessToken } from '../api/client';
+import {
+  login,
+  logout,
+  register,
+  setAccessToken,
+  refreshToken,
+} from '../api/client';
 import { getCurrentUser, User } from '../api/users';
 
 interface AuthContextType {
-  user: User | null;
+  user: User | null | undefined;
   loginUser: (username: string, password: string) => Promise<void>;
   registerUser: (
     username: string,
@@ -23,7 +29,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null | undefined>(undefined);
 
   const refreshUser = async () => {
     try {
@@ -55,7 +61,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    refreshUser();
+    const initAuth = async () => {
+      try {
+        await refreshToken();
+        await refreshUser();
+      } catch {
+        setUser(null);
+      }
+    };
+
+    initAuth();
   }, []);
 
   return (
