@@ -1,42 +1,66 @@
-import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const { loginUser } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     try {
       await loginUser(username, password);
-      navigate("/");
-    } catch {
-      alert("Ошибка логина");
+      navigate('/');
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || 'Ошибка входа');
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow">
+      <h1 className="text-xl font-bold mb-4">Вход</h1>
+      {error && <p className="text-red-500 mb-2">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          placeholder="Username"
+          type="text"
+          placeholder="Имя пользователя"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className="w-full border p-2 rounded"
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-2 rounded"
         />
-        <button type="submit">Login</button>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        >
+          Войти
+        </button>
       </form>
-      <p>
-        Нет аккаунта? <Link to="/register">Регистрация</Link>
+
+      <p className="mt-4 text-center text-sm">
+        Нет аккаунта?{' '}
+        <a href="/register" className="text-blue-500 hover:underline">
+          Зарегистрироваться
+        </a>
+      </p>
+      <p className="mt-2 text-center text-sm">
+        <a
+          href="/reset-password-request"
+          className="text-blue-500 hover:underline"
+        >
+          Забыли пароль?
+        </a>
       </p>
     </div>
   );
