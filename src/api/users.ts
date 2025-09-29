@@ -1,4 +1,4 @@
-import { api } from "./client";
+import { api } from './client';
 
 export interface User {
   id: string;
@@ -21,19 +21,19 @@ export interface UserAvatarUploadResponse {
 }
 
 export async function getCurrentUser(): Promise<User> {
-  const res = await api.get<User>("/users/me");
+  const res = await api.get<User>('/users/me');
   return res.data;
 }
 
 export async function updateCurrentUser(
   data: UserUpdateRequest
 ): Promise<User> {
-  const res = await api.put<User>("/users/update", data);
+  const res = await api.put<User>('/users/update', data);
   return res.data;
 }
 
 export async function getAvatarUploadUrls(): Promise<UserAvatarUploadResponse> {
-  const res = await api.put<UserAvatarUploadResponse>("/users/upload-avatar");
+  const res = await api.put<UserAvatarUploadResponse>('/users/upload-avatar');
   return res.data;
 }
 
@@ -43,10 +43,10 @@ export async function uploadAvatarFile(
   const { upload_url, public_url } = await getAvatarUploadUrls();
 
   await fetch(upload_url, {
-    method: "PUT",
+    method: 'PUT',
     body: file,
     headers: {
-      "Content-Type": file.type,
+      'Content-Type': file.type,
     },
   });
 
@@ -54,9 +54,9 @@ export async function uploadAvatarFile(
 }
 
 export async function deleteAvatar(): Promise<void> {
-  await api.put("/users/delete-avatar");
+  await api.put('/users/delete-avatar');
 }
 
 export async function deleteCurrentUser(): Promise<void> {
-  await api.delete("/users/delete");
+  await api.delete('/users/delete');
 }

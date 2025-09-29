@@ -55,9 +55,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logoutUser = async () => {
-    await logout();
-    setAccessToken(null);
-    setUser(null);
+    try {
+      await logout();
+      setAccessToken(null);
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      setAccessToken(null);
+      setUser(null);
+    }
   };
 
   useEffect(() => {
