@@ -1,27 +1,35 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
   updateCurrentUser,
   uploadAvatarFile,
   deleteAvatar,
   deleteCurrentUser,
-} from "../api/users";
-import { requestVerifyEmail } from "../api/auth";
+} from '../api/users';
+import { requestVerifyEmail } from '../api/auth';
 
-function InfoItemWithIcon({ icon, label, value, action }: { icon: string; label: string; value: string; action?: React.ReactNode }) {
+function InfoItemWithIcon({
+  icon,
+  label,
+  value,
+  action,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  action?: React.ReactNode;
+}) {
   return (
     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
       <span className="text-lg">{icon}</span>
       <div className="flex-1 min-w-0">
         <div className="text-xs text-gray-500 font-medium">{label}</div>
-        <div className="text-sm font-semibold text-gray-900 truncate">{value}</div>
-      </div>
-      {action && (
-        <div className="flex-shrink-0">
-          {action}
+        <div className="text-sm font-semibold text-gray-900 truncate">
+          {value}
         </div>
-      )}
+      </div>
+      {action && <div className="flex-shrink-0">{action}</div>}
     </div>
   );
 }
@@ -30,19 +38,21 @@ export default function Me() {
   const { user, logoutUser, refreshUser } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
-  const [emailVerificationLoading, setEmailVerificationLoading] = useState(false);
+  const [emailVerificationLoading, setEmailVerificationLoading] =
+    useState(false);
 
   useEffect(() => {
-    const emailChanged = email !== user?.email && email.trim() !== "";
-    const passwordChanged = password.trim() !== "";
-    const isValidEmail = email === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    
+    const emailChanged = email !== user?.email && email.trim() !== '';
+    const passwordChanged = password.trim() !== '';
+    const isValidEmail =
+      email === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
     setIsFormValid((emailChanged || passwordChanged) && isValidEmail);
   }, [email, password, user?.email]);
 
@@ -52,7 +62,7 @@ export default function Me() {
       await logoutUser();
       navigate('/login');
     } catch (error) {
-      setMessage("Ошибка при выходе ❌");
+      setMessage('Ошибка при выходе ❌');
       setLoading(false);
     }
   };
@@ -64,7 +74,7 @@ export default function Me() {
       await logoutUser();
       navigate('/login');
     } catch {
-      setMessage("Ошибка при удалении аккаунта ❌");
+      setMessage('Ошибка при удалении аккаунта ❌');
       setLoading(false);
       setShowDeleteModal(false);
     }
@@ -72,16 +82,16 @@ export default function Me() {
 
   const handleRequestEmailVerification = async () => {
     if (!user?.email) {
-      setMessage("Сначала укажите email ❌");
+      setMessage('Сначала укажите email ❌');
       return;
     }
 
     try {
       setEmailVerificationLoading(true);
       await requestVerifyEmail();
-      setMessage("Письмо с подтверждением отправлено на ваш email ✅");
+      setMessage('Письмо с подтверждением отправлено на ваш email ✅');
     } catch (error) {
-      setMessage("Ошибка при отправке письма подтверждения ❌");
+      setMessage('Ошибка при отправке письма подтверждения ❌');
     } finally {
       setEmailVerificationLoading(false);
     }
@@ -102,11 +112,11 @@ export default function Me() {
         email: email !== user.email ? email : null,
         password: password || null,
       });
-      setMessage("Профиль успешно обновлён ✅");
-      setPassword("");
+      setMessage('Профиль успешно обновлён ✅');
+      setPassword('');
       await refreshUser();
     } catch {
-      setMessage("Ошибка при обновлении профиля ❌");
+      setMessage('Ошибка при обновлении профиля ❌');
     } finally {
       setLoading(false);
     }
@@ -115,19 +125,19 @@ export default function Me() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     if (!file.type.startsWith('image/')) {
-      setMessage("Пожалуйста, выберите изображение ❌");
+      setMessage('Пожалуйста, выберите изображение ❌');
       return;
     }
 
     try {
       setLoading(true);
       await uploadAvatarFile(file);
-      setMessage("Аватар успешно обновлён ✅");
+      setMessage('Аватар успешно обновлён ✅');
       await refreshUser();
     } catch {
-      setMessage("Ошибка при загрузке аватара ❌");
+      setMessage('Ошибка при загрузке аватара ❌');
     } finally {
       setLoading(false);
       e.target.value = '';
@@ -138,38 +148,40 @@ export default function Me() {
     try {
       setLoading(true);
       await deleteAvatar();
-      setMessage("Аватар удалён ✅");
+      setMessage('Аватар удалён ✅');
       await refreshUser();
     } catch {
-      setMessage("Ошибка при удалении аватара ❌");
+      setMessage('Ошибка при удалении аватара ❌');
     } finally {
       setLoading(false);
     }
   };
 
-  const emailVerificationAction = !user.email_verified && user.email ? (
-    <button
-      onClick={handleRequestEmailVerification}
-      disabled={emailVerificationLoading}
-      className="bg-green-500 text-white py-1 px-3 rounded text-xs hover:bg-green-600 transition-colors disabled:opacity-50 whitespace-nowrap"
-    >
-      {emailVerificationLoading ? "Отправка..." : "Подтвердить"}
-    </button>
-  ) : null;
+  const emailVerificationAction =
+    !user.email_verified && user.email ? (
+      <button
+        onClick={handleRequestEmailVerification}
+        disabled={emailVerificationLoading}
+        className="bg-green-500 text-white py-1 px-3 rounded text-xs hover:bg-green-600 transition-colors disabled:opacity-50 whitespace-nowrap"
+      >
+        {emailVerificationLoading ? 'Отправка...' : 'Подтвердить'}
+      </button>
+    ) : null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      {/* Уведомления сверху */}
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4">
-          <div className={`p-4 rounded-lg border shadow-lg ${
-            message.includes("❌") 
-              ? "bg-red-50 border-red-200 text-red-700" 
-              : "bg-green-50 border-green-200 text-green-700"
-          }`}>
+          <div
+            className={`p-4 rounded-lg border shadow-lg ${
+              message.includes('❌')
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : 'bg-green-50 border-green-200 text-green-700'
+            }`}
+          >
             <div className="flex items-center justify-between">
               <span>{message}</span>
-              <button 
+              <button
                 onClick={() => setMessage(null)}
                 className="ml-4 text-gray-500 hover:text-gray-700"
               >
@@ -180,10 +192,9 @@ export default function Me() {
         </div>
       )}
 
-      {/* Кнопка Home в левом верхнем углу */}
       <div className="max-w-2xl mx-auto mb-6">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
         >
           <span className="text-lg">🏠</span>
@@ -194,8 +205,12 @@ export default function Me() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-8">
-            <h1 className="text-3xl font-bold text-white">Профиль пользователя</h1>
-            <p className="text-blue-100 mt-2">Управление вашей учетной записью</p>
+            <h1 className="text-3xl font-bold text-white">
+              Профиль пользователя
+            </h1>
+            <p className="text-blue-100 mt-2">
+              Управление вашей учетной записью
+            </p>
           </div>
 
           <div className="p-6 space-y-8">
@@ -208,32 +223,34 @@ export default function Me() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <InfoItemWithIcon 
-                  icon="📧" 
-                  label="Email" 
-                  value={user.email || "Не указан"} 
+                <InfoItemWithIcon
+                  icon="📧"
+                  label="Email"
+                  value={user.email || 'Не указан'}
                 />
-                <InfoItemWithIcon 
-                  icon={user.email_verified ? "✅" : "❌"} 
-                  label="Подтверждён" 
-                  value={user.email_verified ? "Да" : "Нет"} 
+                <InfoItemWithIcon
+                  icon={user.email_verified ? '✅' : '❌'}
+                  label="Подтверждён"
+                  value={user.email_verified ? 'Да' : 'Нет'}
                   action={emailVerificationAction}
                 />
-                <InfoItemWithIcon 
-                  icon="📅" 
-                  label="Создан" 
-                  value={new Date(user.created_at).toLocaleDateString('ru-RU')} 
+                <InfoItemWithIcon
+                  icon="📅"
+                  label="Создан"
+                  value={new Date(user.created_at).toLocaleDateString('ru-RU')}
                 />
-                <InfoItemWithIcon 
-                  icon="🔄" 
-                  label="Обновлён" 
-                  value={new Date(user.updated_at).toLocaleDateString('ru-RU')} 
+                <InfoItemWithIcon
+                  icon="🔄"
+                  label="Обновлён"
+                  value={new Date(user.updated_at).toLocaleDateString('ru-RU')}
                 />
               </div>
             </div>
 
             <div className="border-t border-gray-200 pt-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Аватар</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Аватар
+              </h2>
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <div className="flex-shrink-0">
                   {user.avatar_url ? (
@@ -248,7 +265,7 @@ export default function Me() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex flex-col gap-3 flex-1">
                   <div className="flex flex-col sm:flex-row gap-3">
                     <label className="flex-1 cursor-pointer">
@@ -262,7 +279,7 @@ export default function Me() {
                         📷 Загрузить аватар
                       </div>
                     </label>
-                    
+
                     {user.avatar_url && (
                       <button
                         onClick={handleAvatarDelete}
@@ -274,14 +291,17 @@ export default function Me() {
                     )}
                   </div>
                   <p className="text-xs text-gray-500">
-                    Поддерживаются форматы: JPG, PNG, GIF. Максимальный размер: 5MB
+                    Поддерживаются форматы: JPG, PNG, GIF. Максимальный размер:
+                    5MB
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="border-t border-gray-200 pt-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Обновить профиль</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Обновить профиль
+              </h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -289,13 +309,13 @@ export default function Me() {
                   </label>
                   <input
                     type="email"
-                    placeholder={user.email || "Введите email"}
+                    placeholder={user.email || 'Введите email'}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Новый пароль
@@ -308,7 +328,7 @@ export default function Me() {
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </div>
-                
+
                 <button
                   onClick={handleUpdate}
                   disabled={loading || !isFormValid}
@@ -320,14 +340,16 @@ export default function Me() {
                       Сохраняю...
                     </span>
                   ) : (
-                    "💾 Обновить профиль"
+                    '💾 Обновить профиль'
                   )}
                 </button>
               </div>
             </div>
 
             <div className="border-t border-gray-200 pt-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Действия</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Действия
+              </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={handleLogout}
@@ -355,13 +377,14 @@ export default function Me() {
               <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
                 <span className="text-red-600 text-xl">⚠️</span>
               </div>
-              
+
               <h2 className="text-xl font-bold text-center text-gray-900 mb-2">
                 Удаление аккаунта
               </h2>
-              
+
               <p className="text-gray-600 text-center mb-6">
-                Вы уверены, что хотите удалить свой аккаунт? Это действие нельзя отменить. Все ваши данные будут безвозвратно удалены.
+                Вы уверены, что хотите удалить свой аккаунт? Это действие нельзя
+                отменить. Все ваши данные будут безвозвратно удалены.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
@@ -382,7 +405,7 @@ export default function Me() {
                       Удаление...
                     </>
                   ) : (
-                    "Удалить аккаунт"
+                    'Удалить аккаунт'
                   )}
                 </button>
               </div>

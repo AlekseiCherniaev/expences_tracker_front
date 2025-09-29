@@ -41,24 +41,35 @@ export async function getExpensesByUser(): Promise<Expense[]> {
   return res.data;
 }
 
-export async function getExpensesByDateRange(start_date: string, end_date: string): Promise<Expense[]> {
+export async function getExpensesByDateRange(
+  start_date: string,
+  end_date: string
+): Promise<Expense[]> {
   const res = await api.get<Expense[]>('/expenses/get-by-date-range', {
-    params: { start_date, end_date }
+    params: { start_date, end_date },
   });
   return res.data;
 }
 
-export async function getExpensesByCategory(category_id: string): Promise<Expense[]> {
-  const res = await api.get<Expense[]>(`/expenses/get-by-category/${category_id}`);
+export async function getExpensesByCategory(
+  category_id: string
+): Promise<Expense[]> {
+  const res = await api.get<Expense[]>(
+    `/expenses/get-by-category/${category_id}`
+  );
   return res.data;
 }
 
-export async function createExpense(data: ExpenseCreateRequest): Promise<Expense> {
+export async function createExpense(
+  data: ExpenseCreateRequest
+): Promise<Expense> {
   const res = await api.post<Expense>('/expenses/create', data);
   return res.data;
 }
 
-export async function updateExpense(data: ExpenseUpdateRequest): Promise<Expense> {
+export async function updateExpense(
+  data: ExpenseUpdateRequest
+): Promise<Expense> {
   const res = await api.put<Expense>('/expenses/update', data);
   return res.data;
 }
@@ -67,16 +78,18 @@ export async function deleteExpense(expense_id: string): Promise<void> {
   await api.delete(`/expenses/delete/${expense_id}`);
 }
 
-export async function getExpensesWithFilters(filters: ExpenseFilters = {}): Promise<Expense[]> {
+export async function getExpensesWithFilters(
+  filters: ExpenseFilters = {}
+): Promise<Expense[]> {
   const { start_date, end_date, category_id } = filters;
-  
+
   if (start_date && end_date) {
     return getExpensesByDateRange(start_date, end_date);
   }
-  
+
   if (category_id) {
     return getExpensesByCategory(category_id);
   }
-  
+
   return getExpensesByUser();
 }

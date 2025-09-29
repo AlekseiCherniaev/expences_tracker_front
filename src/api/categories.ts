@@ -36,12 +36,16 @@ export async function getCategoriesByUser(): Promise<Category[]> {
   return res.data;
 }
 
-export async function createCategory(data: CategoryCreateRequest): Promise<Category> {
+export async function createCategory(
+  data: CategoryCreateRequest
+): Promise<Category> {
   const res = await api.post<Category>('/categories/create', data);
   return res.data;
 }
 
-export async function updateCategory(data: CategoryUpdateRequest): Promise<Category> {
+export async function updateCategory(
+  data: CategoryUpdateRequest
+): Promise<Category> {
   const res = await api.put<Category>('/categories/update', data);
   return res.data;
 }
