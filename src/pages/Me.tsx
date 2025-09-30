@@ -48,6 +48,18 @@ export default function Me() {
     useState(false);
 
   useEffect(() => {
+    if (user === null) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      setEmail(user.email ?? '');
+    }
+  }, [user]);
+
+  useEffect(() => {
     const emailChanged = email !== user?.email && email.trim() !== '';
     const passwordChanged = password.trim() !== '';
     const isValidEmail =
@@ -60,7 +72,6 @@ export default function Me() {
     try {
       setLoading(true);
       await logoutUser();
-      navigate('/login');
     } catch (error) {
       setMessage('Ошибка при выходе ❌');
       setLoading(false);
@@ -72,7 +83,6 @@ export default function Me() {
       setLoading(true);
       await deleteCurrentUser();
       await logoutUser();
-      navigate('/login');
     } catch {
       setMessage('Ошибка при удалении аккаунта ❌');
       setLoading(false);
@@ -97,12 +107,16 @@ export default function Me() {
     }
   };
 
-  if (!user) {
+  if (user === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
+  }
+
+  if (user === null) {
+    return null;
   }
 
   const handleUpdate = async () => {

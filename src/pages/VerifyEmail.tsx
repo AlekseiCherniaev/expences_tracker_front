@@ -3,14 +3,16 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { verifyEmail } from '../api/auth';
 
 export default function VerifyEmail() {
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
+    'loading'
+  );
   const [message, setMessage] = useState<string>('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const emailToken = searchParams.get('email_token');
-    
+
     if (!emailToken) {
       setStatus('error');
       setMessage('Неверная ссылка для подтверждения');
@@ -28,8 +30,8 @@ export default function VerifyEmail() {
       } catch (error: any) {
         setStatus('error');
         setMessage(
-          error?.response?.data?.detail || 
-          'Ошибка при подтверждении email. Ссылка может быть устаревшей.'
+          error?.response?.data?.detail ||
+            'Ошибка при подтверждении email. Ссылка может быть устаревшей.'
         );
       }
     };
@@ -48,9 +50,7 @@ export default function VerifyEmail() {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Подтверждение email
             </h1>
-            <p className="text-gray-600">
-              Проверяем вашу ссылку...
-            </p>
+            <p className="text-gray-600">Проверяем вашу ссылку...</p>
           </div>
         )}
 
@@ -61,12 +61,8 @@ export default function VerifyEmail() {
                 <span className="text-2xl">✅</span>
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Успешно!
-            </h1>
-            <p className="text-gray-600 mb-6">
-              {message}
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Успешно!</h1>
+            <p className="text-gray-600 mb-6">{message}</p>
             <p className="text-sm text-gray-500 mb-6">
               Вы будете перенаправлены на главную страницу через 3 секунды...
             </p>
@@ -86,12 +82,8 @@ export default function VerifyEmail() {
                 <span className="text-2xl">❌</span>
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Ошибка
-            </h1>
-            <p className="text-gray-600 mb-6">
-              {message}
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Ошибка</h1>
+            <p className="text-gray-600 mb-6">{message}</p>
             <div className="space-y-3">
               <button
                 onClick={() => navigate('/me')}
