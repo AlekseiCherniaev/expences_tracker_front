@@ -8,6 +8,7 @@ import ResetPassword from './pages/ResetPassword';
 import Me from './pages/Me';
 import ResetPasswordConfirm from './pages/ResetPasswordConfirm';
 import CheckEmail from './pages/CheckEmail';
+import OAuthCallback from './pages/OAuthCallback';
 import Home from './pages/Home';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordConfirm />} />
           <Route path="/check-email" element={<CheckEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route
             path="/"
             element={
