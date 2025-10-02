@@ -1,51 +1,42 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { setAccessToken } from '../api/client';
+import { useNavigate } from 'react-router-dom';
 
 export default function OAuthCallback() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
-    'loading'
-  );
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const accessTokenFromUrl = searchParams.get('access_token');
-    if (accessTokenFromUrl) {
-      setStatus('success');
-      setTimeout(() => navigate('/'), 1000);
-    } else {
-      setError('Не удалось получить токен авторизации');
-      setStatus('error');
-      setTimeout(() => navigate('/login'), 3000);
-    }
-  }, [navigate, searchParams]);
 
-  if (status === 'error') {
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/me", { credentials: "include" });
+        if (res.ok) {
+          setStatus("success");
+          setTimeout(() => navigate("/"), 1000);
+        } else {
+          throw new Error("Не удалось получить данные пользователя");
+        }
+      } catch (e) {
+        setError("Ошибка авторизации");
+        setStatus("error");
+        setTimeout(() => navigate("/login"), 3000);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
+
+  if (status === "error") {
     return (
       <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow text-center">
-        <div className="text-red-500 mb-4">
-          <svg
-            className="w-16 h-16 mx-auto"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
+        <div className="text-red-500 mb-4">❌</div>
         <h1 className="text-xl font-bold mb-2 text-red-600">Ошибка</h1>
         <p className="mb-4 text-gray-600">{error}</p>
         <p className="text-sm text-gray-500 mb-4">
           Автоматический переход через 3 секунды...
         </p>
         <button
-          onClick={() => navigate('/login')}
+          onClick={() => navigate("/login")}
           className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
         >
           Вернуться к входу
@@ -54,24 +45,10 @@ export default function OAuthCallback() {
     );
   }
 
-  if (status === 'success') {
+  if (status === "success") {
     return (
       <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded shadow text-center">
-        <div className="text-green-500 mb-4">
-          <svg
-            className="w-16 h-16 mx-auto"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
+        <div className="text-green-500 mb-4">✅</div>
         <h1 className="text-xl font-bold mb-2 text-green-600">Успешно!</h1>
         <p className="mb-4 text-gray-600">Авторизация прошла успешно</p>
         <p className="text-sm text-gray-500">
