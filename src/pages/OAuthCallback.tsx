@@ -9,13 +9,7 @@ export default function OAuthCallback() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/users/me", { credentials: "include" });
-        if (res.ok) {
-          setStatus("success");
-          setTimeout(() => navigate("/"), 1000);
-        } else {
-          throw new Error("Не удалось получить данные пользователя");
-        }
+        navigate("/me")
       } catch (e) {
         setError("Ошибка авторизации");
         setStatus("error");
