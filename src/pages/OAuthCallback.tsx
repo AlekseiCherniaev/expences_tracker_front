@@ -10,54 +10,49 @@ export default function OAuthCallback() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
 
+  // 🔥 Правильная функция для чтения кук
+  const getCookie = (name: string): string | null => {
+    // Пробуем разные варианты разделителей
+    const matches = document.cookie.match(
+      new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)')
+    );
+    return matches ? decodeURIComponent(matches[1]) : null;
+  };
+
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
-        console.log('🔍 Starting OAuth callback...');
-        
-        const accessTokenFromUrl = searchParams.get('access_token');
-        const success = searchParams.get('success');
-        
-        if (success === 'true' && accessTokenFromUrl) {
-          console.log('🔍 Found access token in URL');
-          setAccessToken(accessTokenFromUrl);
-          await refreshUser();
-          setStatus('success');
-          setTimeout(() => navigate('/'), 1000);
-          return;
-        }
+        console.log(' Starting OAuth callback...');
+        console.log(' Full cookies:', document.cookie);
         
         try {
-          console.log('🔍 Attempting token refresh...');
+          console.log(' Attempting token refresh...');
           await refreshToken();
-          console.log('🔍 Token refreshed successfully');
+          console.log(' Token refreshed successfully');
           await refreshUser();
           setStatus('success');
           setTimeout(() => navigate('/'), 1000);
           return;
         } catch (refreshError) {
-          console.log('🔍 Token refresh failed:', refreshError);
+          console.log(' Token refresh failed:', refreshError);
         }
-        
-        const getCookie = (name: string) => {
-          const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-          console.log(`🔍 Cookie ${name}:`, match ? 'found' : 'not found');
-          return match ? decodeURIComponent(match[2]) : null;
-        };
-        
+
         const accessTokenFromCookie = getCookie('access_token');
-        console.log('🔍 Access token from cookie:', accessTokenFromCookie);
+        console.log(' Access token from cookie:', accessTokenFromCookie);
         
         if (accessTokenFromCookie) {
+          console.log(' Setting access token from cookie...');
           setAccessToken(accessTokenFromCookie);
           await refreshUser();
           setStatus('success');
           setTimeout(() => navigate('/'), 1000);
         } else {
-          throw new Error('No access token found in any source');
+          const allCookies = document.cookie.split(';').map(cookie => cookie.trim());
+          console.log(' All available cookies:', allCookies);
+          throw new Error('No access token found in cookies');
         }
       } catch (err) {
-        console.error('🔍 OAuth callback error:', err);
+        console.error(' OAuth callback error:', err);
         setError('Не удалось получить токен авторизации');
         setStatus('error');
         setTimeout(() => navigate('/login'), 3000);
