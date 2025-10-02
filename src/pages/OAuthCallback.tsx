@@ -5,18 +5,21 @@ import { setAccessToken } from '../api/client';
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
+    'loading'
+  );
   const [error, setError] = useState<string | null>(null);
-useEffect(() => {
-  const accessTokenFromUrl = searchParams.get("access_token");
-  if (accessTokenFromUrl) {
-    setAccessToken(accessTokenFromUrl);
-    navigate("/");
-  } else {
-    setError("Не удалось получить токен авторизации");
-    setTimeout(() => navigate("/login"), 3000);
-  }
-}, [navigate, searchParams]);
+  useEffect(() => {
+    const accessTokenFromUrl = searchParams.get('access_token');
+    if (accessTokenFromUrl) {
+      setStatus('success');
+      setTimeout(() => navigate('/'), 1000);
+    } else {
+      setError('Не удалось получить токен авторизации');
+      setStatus('error');
+      setTimeout(() => navigate('/login'), 3000);
+    }
+  }, [navigate, searchParams]);
 
   if (status === 'error') {
     return (

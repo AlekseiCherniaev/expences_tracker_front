@@ -67,26 +67,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-  const initAuth = async () => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const accessTokenFromUrl = urlParams.get('access_token');
-      
-      if (accessTokenFromUrl) {
-        setAccessToken(accessTokenFromUrl);
-        window.history.replaceState({}, '', window.location.pathname);
-      } else {
-        await refreshToken();
-      }
-      
-      await refreshUser();
-    } catch {
-      setUser(null);
-    }
-  };
+    const initAuth = async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessTokenFromUrl = urlParams.get('access_token');
 
-  initAuth();
-}, []);
+        if (accessTokenFromUrl) {
+          setAccessToken(accessTokenFromUrl);
+          window.history.replaceState({}, '', window.location.pathname);
+        } else {
+          await refreshToken();
+        }
+
+        await refreshUser();
+      } catch {
+        setUser(null);
+      }
+    };
+
+    initAuth();
+  }, []);
   return (
     <AuthContext.Provider
       value={{ user, loginUser, registerUser, logoutUser, refreshUser }}
