@@ -1,31 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { refreshToken } from '../api/client';
-import { useAuth } from '../context/AuthContext';
+import { setAccessToken } from '../api/client';
 
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { refreshUser } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handleOAuthCallback = async () => {
-      try {
-        await refreshToken();
-        await refreshUser();
-        setStatus('success');
-        setTimeout(() => navigate('/'), 1000);
-      } catch {
-        setError('Не удалось получить токен авторизации');
-        setStatus('error');
-        setTimeout(() => navigate('/login'), 3000);
-      }
-    };
-
-    handleOAuthCallback();
-  }, [navigate, refreshUser, searchParams]);
+useEffect(() => {
+  const accessTokenFromUrl = searchParams.get("access_token");
+  if (accessTokenFromUrl) {
+    setAccessToken(accessTokenFromUrl);
+    navigate("/");
+  } else {
+    setError("Не удалось получить токен авторизации");
+    setTimeout(() => navigate("/login"), 3000);
+  }
+}, [navigate, searchParams]);
 
   if (status === 'error') {
     return (
