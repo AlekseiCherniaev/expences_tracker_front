@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { setAccessToken } from '../api/client';
+import { setAccessToken, refreshToken } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
 export default function OAuthCallback() {
@@ -13,23 +13,51 @@ export default function OAuthCallback() {
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
+        console.log('🔍 Starting OAuth callback...');
+        
+        const accessTokenFromUrl = searchParams.get('access_token');
+        const success = searchParams.get('success');
+        
+        if (success === 'true' && accessTokenFromUrl) {
+          console.log('🔍 Found access token in URL');
+          setAccessToken(accessTokenFromUrl);
+          await refreshUser();
+          setStatus('success');
+          setTimeout(() => navigate('/'), 1000);
+          return;
+        }
+        
+        try {
+          console.log('🔍 Attempting token refresh...');
+          await refreshToken();
+          console.log('🔍 Token refreshed successfully');
+          await refreshUser();
+          setStatus('success');
+          setTimeout(() => navigate('/'), 1000);
+          return;
+        } catch (refreshError) {
+          console.log('🔍 Token refresh failed:', refreshError);
+        }
+        
         const getCookie = (name: string) => {
           const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+          console.log(`🔍 Cookie ${name}:`, match ? 'found' : 'not found');
           return match ? decodeURIComponent(match[2]) : null;
         };
         
-        const accessToken = getCookie('access_token');
+        const accessTokenFromCookie = getCookie('access_token');
+        console.log('🔍 Access token from cookie:', accessTokenFromCookie);
         
-        if (accessToken) {
-          setAccessToken(accessToken);
+        if (accessTokenFromCookie) {
+          setAccessToken(accessTokenFromCookie);
           await refreshUser();
           setStatus('success');
           setTimeout(() => navigate('/'), 1000);
         } else {
-          throw new Error('No access token found in cookies');
+          throw new Error('No access token found in any source');
         }
       } catch (err) {
-        console.error('OAuth callback error:', err);
+        console.error('🔍 OAuth callback error:', err);
         setError('Не удалось получить токен авторизации');
         setStatus('error');
         setTimeout(() => navigate('/login'), 3000);
@@ -37,7 +65,7 @@ export default function OAuthCallback() {
     };
 
     handleOAuthCallback();
-  }, [navigate, refreshUser]);
+  }, [navigate, refreshUser, searchParams]);
 
   if (status === 'error') {
     return (
