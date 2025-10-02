@@ -75,10 +75,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (accessTokenFromUrl) {
           setAccessToken(accessTokenFromUrl);
           window.history.replaceState({}, '', window.location.pathname);
-        } else {
-          await refreshToken();
+          await refreshUser();
+          return;
         }
-
+        await refreshToken();
         await refreshUser();
       } catch {
         setUser(null);
@@ -87,6 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     initAuth();
   }, []);
+
   return (
     <AuthContext.Provider
       value={{ user, loginUser, registerUser, logoutUser, refreshUser }}
